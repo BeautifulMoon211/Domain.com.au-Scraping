@@ -1,10 +1,10 @@
-import locationBasedScraper from './locationBasedScraper.js'
+import { suburbs } from './urlProvider.js'
+import agentScraper from './domainComAgentsScraper.js'
 
 const main = async () => {
     try {
-        const location = 'london'
-        const properties = await locationBasedScraper(location)
-        console.log(properties)
+        for (let suburb of [['abbotsford', '3067']])
+            agentScraper(suburb)
     } catch (error) { 
         console.error('Error in main execution:', error)
     }
