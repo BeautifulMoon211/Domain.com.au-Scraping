@@ -2,8 +2,16 @@ export const urlAgentsByPage = (baseUrl: string, page: Number) => {
     return baseUrl + '/?page=' + page.toString()
 }
 
-export const urlAgentTotal = (subdirectory: string | undefined) => {
-    return "https://www.domain.com.au" + subdirectory
+export const urlAgentTotal = (subdirectory: string | undefined): string => {
+    const baseUrl = "https://www.domain.com.au";
+    if (!subdirectory) {
+        return baseUrl
+    } else {
+        if (subdirectory.startsWith(baseUrl) != true) {
+            return baseUrl + subdirectory;
+        }
+        return subdirectory
+    }
 }
 
 

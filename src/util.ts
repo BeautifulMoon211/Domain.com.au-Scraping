@@ -62,7 +62,7 @@ export const getCompanyLinks = async (PAGE_URL: string): Promise<string[]> => {
         const $ = cheerio.load(html);
         const profileCards = $('div[data-testid="profile-card"]')
         profileCards.each((_, el) => {
-            companyUrlList.push(urlAgentTotal($(el).find('a').attr('href')))            
+            companyUrlList.push(urlAgentTotal($(el).find('a').attr('href')))  
         })
     }
 
@@ -79,9 +79,10 @@ export const getAgentsFromCom = async (PAGE_URL: string) : Promise<string[]> => 
     const $ = cheerio.load(html)
 
     $('.css-1beaf7d').each((_, el) => {
-        agentUrlList.push(urlAgentTotal($(el).children('div').eq(1).find('a').attr('href')))
+        const link = $(el).children('div').eq(1).find('a').attr('href') || $(el).children('div').eq(0).find('a').attr('href');
+        if (link)
+            agentUrlList.push(link)
     })
-
     return removeDuplicates(agentUrlList)
 }
 
@@ -91,17 +92,25 @@ const extractEmails = (html: string): string[] => {
 }
 
 export const getPropertyFromAgent = async (suburb: string, PAGE_URL: string): Promise<Property> => {
-    let html = await getResponse(PAGE_URL)
+    const html = await getResponse(PAGE_URL)
     const $ = cheerio.load(html)
 
-    const name = $('.css-zzbykz').children('h1').text().trim()
-    const firstName = name.split(" ")[0]
-    const secondName = name.split(" ")[1]
-    const businessName = $('.css-zzbykz').children('p').text().trim()
+    const agentName = $('h1[data-testid="trade-profile-hero-section__name"]').text().trim() || $('[data-testid="trade-profile-hero-banner__name"]').text().trim()
+    const firstName = agentName.split(" ")[0]
+    const secondName = agentName.split(" ")[1]
+    const businessName = $('[data-testid="trade-profile-hero-banner__agent-job-position"]').text().trim() || $('[data-testid="trade-profile-hero-section__agent-job-position"]').text().trim()
+    
+    let emailAddress = "";
+    const emailHTML = await getResponse(urlAgentTotal($('[data-testid="listing-card-single-image"]').children('a').attr('href')))
+    const emails = extractEmails(emailHTML)
+    for (let email of emails) {
+        if (email.includes(secondName.toLowerCase()))
+            emailAddress = email
+    }
 
-    html = await getResponse(urlAgentTotal($('[data-testid="listing-card-single-image"]').children('a').attr('href')))
-    const emailAddress = extractEmails(html)[0]
     const agency = $('p[data-testid="trade-profile-hero-section__name"]').text().trim()
+
+    console.log( "firstName: ", firstName,  "secondName: ", secondName,  "businessName: ", businessName,  "emailAddress: ", emailAddress,  "agency: ", agency,  "suburb: ", suburb, )
 
     return {
         firstName: firstName,
