@@ -104,7 +104,7 @@ export const getPropertyFromAgent = async (suburb: string, PAGE_URL: string): Pr
     const emailHTML = await getResponse(urlAgentTotal($('[data-testid="listing-card-single-image"]').children('a').attr('href')))
     const emails = extractEmails(emailHTML)
     for (let email of emails) {
-        if (email.includes(secondName.toLowerCase()))
+        if (email.includes(firstName.toLowerCase()) || email.includes(secondName.toLowerCase()))
             emailAddress = email
     }
 
